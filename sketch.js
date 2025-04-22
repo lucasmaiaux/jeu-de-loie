@@ -25,6 +25,10 @@ let offset_logs_y = 730;
 let logs_lines = 6;
 let logs = new Array(logs_lines).fill("");
 
+// Bouton
+let offset_button_x = 120;
+let offset_button_y = 400;
+
 // Animation dés
 let rollDice = false;
 let dice1_temp = 1;
@@ -117,6 +121,7 @@ function draw() {
   drawLeftPanel();
   drawDices();
   drawLogs();
+  drawButton();
 
   for (let i = 0; i < nb_joueurs; i++) {
     draw_positionPlayer(i);
@@ -132,6 +137,24 @@ function draw() {
 function keyPressed() {
   if (!game_finished && keyCode >= 97 && keyCode < 97 + nb_joueurs) {
     newRound(keyCode - 97);
+  }
+}
+
+// === Contrôle souris ===
+function mousePressed() {
+  if (!game_finished) {
+    let button_min_x = offset_leftpanel_x + 110
+    let button_max_x = button_min_x + 200;
+    let button_min_y = offset_leftpanel_y + 90 + (nb_joueurs*30)
+    let button_max_y = button_min_y + 50;
+  
+    if (mouseX > button_min_x && mouseX < button_max_x && mouseY > button_min_y && mouseY < button_max_y) {
+      for (let i = 0; i < nb_joueurs; i++) {
+        setTimeout(() => {
+          newRound(i);
+        }, i * 500); // 500ms
+      }
+    }
   }
 }
 
@@ -213,6 +236,16 @@ function drawLogs() {
     text(logs[i], offset_logs_x + 10, (offset_logs_y + 135) - (i * 23));
   }
   triangle(offset_logs_x - 10, (offset_logs_y + 125), offset_logs_x - 10, (offset_logs_y + 145), offset_logs_x + 5, (offset_logs_y + 135));
+}
+
+// Dessine le bouton de lancement de dés
+function drawButton() {
+  fill(255, 51, 0);
+  rect(offset_leftpanel_x + 110, 90 + (nb_joueurs*30) + offset_leftpanel_y, 200, 50);
+  fill(0);
+  textSize(24);
+  textAlign(CENTER, CENTER);
+  text("Lancer dés", offset_leftpanel_x + 210, 115 + (nb_joueurs*30) + offset_leftpanel_y);
 }
 
 function draw_positionPlayer(i) {
