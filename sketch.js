@@ -18,10 +18,14 @@ let dice1 = 1;
 let dice2 = 1;
 let offset_leftpanel_x = 80;
 let offset_leftpanel_y = 180;
+
+// Logs
 let offset_logs_x = 90;
 let offset_logs_y = 730;
 let logs_lines = 6;
 let logs = new Array(logs_lines).fill("");
+
+// Animation dés
 let rollDice = false;
 let dice1_temp = 1;
 let dice2_temp = 1;
@@ -29,10 +33,16 @@ let startAnimation;
 let timeAnimation = 500;
 let intervalChangement = 160;
 let dernierChangement = 0;
+
+// Puit
 let puit_rempli = false;
 let puit_player = 0;
+
+// Prison
 let prison_remplie = false;
 let prison_player = 0;
+
+// Vainqueur
 let game_finished = false;
 let player_win = -1;
 
@@ -44,13 +54,21 @@ let confettis = [];
 
 // === Chargement des images ===
 function preload() {
+
+  // Pions joueurs
+  for (let i = 0; i < 6; i++) dice_img[i] = loadImage(`data/dice1_${i+1}.png`);
+  for (let i = 0; i < 9; i++) player_img[i] = loadImage(`data/player-${i+1}.png`);
+
+  // Image de fond
   background_img = loadImage("data/background_papet.png");
+
+  // Autres images
   pancarte = loadImage("data/pancarte_small.png");
   pancarte_left = loadImage("data/pancarte_left.png");
   confettis.push(loadImage("data/confettis_1.png"));
   confettis.push(loadImage("data/confettis_2.png"));
-  for (let i = 0; i < 6; i++) dice_img[i] = loadImage(`data/dice1_${i+1}.png`);
-  for (let i = 0; i < 9; i++) player_img[i] = loadImage(`data/player-${i+1}.png`);
+
+  // Cases spéciales
   img_oie = loadImage("data/case_oie_txt.png");
   img_hotel = loadImage("data/case_hotel_txt2.png");
   img_laby = loadImage("data/case_laby_txt.png");
@@ -63,33 +81,52 @@ function preload() {
 function setup() {
   createCanvas(1535, 900);
   textSize(24);
-  player_color = ["#ff0000", "#0000ff", "#00ff00", "#ffffff", "#ff00ff", "#00ffff", "#ffff00", "#ff9933", "#9966ff", "#990033"];
+
+  // Initialisation des couleurs pour les différents joueurs
+  player_color[0] = "#ff0000"; // RED
+  player_color[1] = "#0000ff"; // BLUE
+  player_color[2] = "#00ff00"; // GREEN
+  player_color[3] = "#ffffff"; // WHITE
+  player_color[4] = "#ff00ff"; // FUCHSIA
+  player_color[5] = "#00ffff"; // AQUA
+  player_color[6] = "#ffff00"; // YELLOW
+  player_color[7] = "#ff9933"; // ORANGE
+  player_color[8] = "#9966ff"; // PURPLE
+  player_color[9] = "#990033"; // BORDEAUX
+
   for (let i = 0; i < nb_joueurs; i++) {
     positions_current[i] = createVector(0, 0);
     positions_target[i] = createVector(0, 0);
   }
+
   calcPositions();
+
   for (let i = 0; i < nb_joueurs; i++) {
     positions_current[i] = positions[0].copy();
     positions_target[i] = positions[0].copy();
   }
+
   logs[0] = "DEBUT DE LA PARTIE";
 }
 
 // === Boucle de dessin ===
 function draw() {
+
   background(background_img);
   image(pancarte, 550, 0);
   drawBoard();
   drawLeftPanel();
   drawDices();
   drawLogs();
+
   for (let i = 0; i < nb_joueurs; i++) {
     draw_positionPlayer(i);
     positions_current[i] = p5.Vector.lerp(positions_current[i], positions_target[i], 0.1);
     image(player_img[i], positions_current[i].x, positions_current[i].y);
   }
+
   if (game_finished && frameCount % 60 > 40) drawEndScreen(player_win);
+
 }
 
 // === Contrôle clavier ===
@@ -102,20 +139,13 @@ function keyPressed() {
 // === Fonctions ===
 
 function addLogs(newlog) {
-  for (let i = logs_lines - 1; i > 0; i--) logs[i] = logs[i - 1];
+  for (let i = logs_lines - 1; i > 0; i--) {
+    logs[i] = logs[i - 1];
+  }
   logs[0] = newlog;
 }
 
-function drawLogs() {
-  fill(0);
-  rect(offset_logs_x, offset_logs_y, 500, 150);
-  fill(255);
-  textSize(18);
-  for (let i = 0; i < logs_lines; i++) {
-    text(logs[i], offset_logs_x + 10, (offset_logs_y + 140) - (i * 23));
-  }
-}
-
+// Dessine le plateau de jeu (serpentin)
 function drawBoard() {
   for (let i = 0; i < totalCases; i++) {
     let pos = positions[i];
@@ -137,6 +167,16 @@ function drawBoard() {
   }
 }
 
+// Dessine le panneau de gauche (pancarte)
+function drawLeftPanel() {
+  image(pancarte_left, offset_leftpanel_x, offset_leftpanel_y);
+  fill(0);
+  textSize(32);
+  textAlign(LEFT);
+  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 50, offset_leftpanel_y + 260);
+}
+
+// Dessine l'animation des dés animés
 function drawDices() {
   let bounce1 = 0;
   let bounce2 = 0;
@@ -160,6 +200,64 @@ function drawDices() {
   image(dice_img[dice2_temp - 1], 300, 460 + bounce2, 96, 96);
 }
 
+// Dessine le panneau de logs
+function drawLogs() {
+  // Carré de fond noir
+  fill(0);
+  rect(offset_logs_x, offset_logs_y, 500, 150);
+
+  // Texte
+  fill(255);
+  textSize(18);
+  textAlign(LEFT);
+  for (let i = 0; i < logs_lines; i++) {
+    text(logs[i], offset_logs_x + 10, (offset_logs_y + 140) - (i * 23));
+  }
+}
+
+function draw_positionPlayer(i) {
+  textAlign(LEFT);
+  textSize(32);
+  fill(player_color[i]);
+  text(`Joueur ${i + 1} : ${player_position[i]}`, 40 + offset_leftpanel_x, 50 + (30 * i) + offset_leftpanel_y);
+  let change = player_lastroll[i];
+  text((change >= 0 ? " + " : " - ") + abs(change), 250 + offset_leftpanel_x, 50 + (30 * i) + offset_leftpanel_y);
+}
+
+function drawEndScreen(p) {
+  image(confettis[0], 390, 40, 350, 350);
+  fill("#ffd7b3");
+  rect(550, 300, 600, 100);
+  fill(player_color[p]);
+  textSize(64);
+  textAlign(LEFT);
+  text(`J${p + 1} : VICTOIRE !`, 580, 370);
+}
+
+function switchPos(p1, p2) {
+  player_lastroll[p2] = player_position[p1] - player_position[p2];
+  player_position[p2] = player_position[p1];
+  positions_target[p2] = positions[player_position[p2]].copy();
+}
+
+//=== Initialisation du plateau ===
+function calcPositions() {
+  let caseCount = 0, line = 0, sens_gauche = false;
+  while (caseCount < totalCases) {
+    for (let i = 0; i < gridSize && caseCount < totalCases; i++) {
+      let x = sens_gauche ? gridSize - 1 - i : i;
+      positions[caseCount++] = createVector((x * cellSize) + x_offset, (10 + line * cellSize) + y_offset);
+    }
+    if (caseCount < totalCases) {
+      let x = sens_gauche ? 0 : gridSize - 1;
+      positions[caseCount++] = createVector((x * cellSize) + x_offset, (10 + (line + 1) * cellSize) + y_offset);
+    }
+    line += 2;
+    sens_gauche = !sens_gauche;
+  }
+}
+
+//=== BOUCLE PRINCIPALE ===
 function newRound(p) {
   dice1 = int(random(1, 7));
   dice2 = int(random(1, 7));
@@ -234,50 +332,4 @@ function newRound(p) {
 
   startAnimation = millis();
   rollDice = true;
-}
-
-function draw_positionPlayer(i) {
-  fill(player_color[i]);
-  text(`J${i + 1} : ${player_position[i]}`, 40 + offset_leftpanel_x, 50 + (30 * i) + offset_leftpanel_y);
-  let change = player_lastroll[i];
-  text((change >= 0 ? " + " : " - ") + abs(change), 250 + offset_leftpanel_x, 50 + (30 * i) + offset_leftpanel_y);
-}
-
-function drawLeftPanel() {
-  image(pancarte_left, offset_leftpanel_x, offset_leftpanel_y);
-  fill(0);
-  textSize(20);
-  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 50, offset_leftpanel_y + 260);
-}
-
-function drawEndScreen(p) {
-  image(confettis[0], 390, 40, 350, 350);
-  fill("#ffd7b3");
-  rect(550, 300, 600, 100);
-  fill(player_color[p]);
-  textSize(64);
-  textAlign(LEFT);
-  text(`J${p + 1} : VICTOIRE !`, 580, 370);
-}
-
-function switchPos(p1, p2) {
-  player_lastroll[p2] = player_position[p1] - player_position[p2];
-  player_position[p2] = player_position[p1];
-  positions_target[p2] = positions[player_position[p2]].copy();
-}
-
-function calcPositions() {
-  let caseCount = 0, line = 0, sens_gauche = false;
-  while (caseCount < totalCases) {
-    for (let i = 0; i < gridSize && caseCount < totalCases; i++) {
-      let x = sens_gauche ? gridSize - 1 - i : i;
-      positions[caseCount++] = createVector((x * cellSize) + x_offset, (10 + line * cellSize) + y_offset);
-    }
-    if (caseCount < totalCases) {
-      let x = sens_gauche ? 0 : gridSize - 1;
-      positions[caseCount++] = createVector((x * cellSize) + x_offset, (10 + (line + 1) * cellSize) + y_offset);
-    }
-    line += 2;
-    sens_gauche = !sens_gauche;
-  }
 }
