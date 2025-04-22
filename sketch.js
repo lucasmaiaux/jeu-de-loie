@@ -129,7 +129,7 @@ function draw() {
     image(player_img[i], positions_current[i].x, positions_current[i].y-1);
   }
 
-  if (game_finished && frameCount % 60 > 40) drawEndScreen(player_win);
+  if (game_finished && frameCount % 60 > 20) drawEndScreen(player_win);
 
 }
 
@@ -383,7 +383,7 @@ function newRound(p) {
       // Effet TDM
       else if (pos === 58) {
         pos = 0;
-        addLogs(`Joueur ${p + 1} rencontre la MORT 💀`);
+        addLogs(`Joueur ${p + 1} rencontre la MORT`);
         switch_possible = false;
       }
     }
@@ -393,7 +393,7 @@ function newRound(p) {
 
       if (pos === 58) {
         pos = 0;
-        addLogs(`Joueur ${p + 1} rencontre la MORT 💀`);
+        addLogs(`Joueur ${p + 1} rencontre la MORT`);
         switch_possible = false;
       }
     }
@@ -413,7 +413,7 @@ function newRound(p) {
   
     // Bloc VICTOIRE
     if (pos === 63) {
-      addLogs(`🎉 Joueur ${p + 1} a gagné !`);
+      addLogs(`Joueur ${p + 1} a gagné !`);
       game_finished = true;
       player_win = p;
     }
