@@ -1,7 +1,7 @@
 # 🦆 Jeu de l'Oie - Version Processing & p5.js
 
 🎲 Un projet de **jeu de l’oie** développé en **Processing (Java)**, puis converti en **p5.js** pour être exécutable directement dans un navigateur.  
-Ce projet a été réalisé dans le cadre de l'apprentissage des **algorithmes** et de la **programmation graphique**.
+Ce projet a été réalisé dans le cadre de l'apprentissage des **algorithmes** et du langage **Java**.
 
 🔗 [👉 Clique ici pour jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
 
