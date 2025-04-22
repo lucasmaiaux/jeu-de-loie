@@ -35,3 +35,8 @@ Le jeu a été converti en **p5.js** (JavaScript) pour tourner dans un navigateu
 - `createCanvas()` pour l'affichage
 - `preload()` pour charger les assets
 - `draw()` pour la boucle principale
+  
+---
+
+## 📖 Qu'est ce que p5.js ?
+https://www.lyceelecorbusier.eu/p5js/
