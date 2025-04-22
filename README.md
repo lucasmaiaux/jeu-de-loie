@@ -5,6 +5,8 @@ Ce projet a été réalisé dans le cadre de l'apprentissage des **algorithmes**
 
 🔗 [👉 Clique ici pour jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
 
+Utiliser les chiffres du pavé numérique ou le bouton **Lancer dés** pour jouer.
+
 ---
 
 ## 🧠 Objectifs pédagogiques
