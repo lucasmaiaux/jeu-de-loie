@@ -50,7 +50,7 @@ let img_oie, img_hotel, img_laby, img_prison, img_puit, img_tdm;
 let dice_img = [];
 let background_img;
 let pancarte, pancarte_left;
-let confettis = [];
+let confettis;
 
 // === Chargement des images ===
 function preload() {
@@ -65,8 +65,7 @@ function preload() {
   // Autres images
   pancarte = loadImage("data/pancarte_small.png");
   pancarte_left = loadImage("data/pancarte_left.png");
-  confettis.push(loadImage("data/confettis_1.png"));
-  confettis.push(loadImage("data/confettis_2.png"));
+  confettis = loadImage("data/confettis_1.png");
 
   // Cases spéciales
   img_oie = loadImage("data/case_oie_txt.png");
@@ -122,7 +121,7 @@ function draw() {
   for (let i = 0; i < nb_joueurs; i++) {
     draw_positionPlayer(i);
     positions_current[i] = p5.Vector.lerp(positions_current[i], positions_target[i], 0.1);
-    image(player_img[i], positions_current[i].x, positions_current[i].y);
+    image(player_img[i], positions_current[i].x, positions_current[i].y-1);
   }
 
   if (game_finished && frameCount % 60 > 40) drawEndScreen(player_win);
@@ -172,8 +171,8 @@ function drawLeftPanel() {
   image(pancarte_left, offset_leftpanel_x, offset_leftpanel_y);
   fill(0);
   textSize(32);
-  textAlign(LEFT);
-  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 50, offset_leftpanel_y + 260);
+  //textAlign(LEFT);
+  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 210, 175 + (nb_joueurs*30) + offset_leftpanel_y);
 }
 
 // Dessine l'animation des dés animés
@@ -196,8 +195,8 @@ function drawDices() {
       bounce2 = sin(millis() * 0.02 + PI / 2) * 15;
     }
   }
-  image(dice_img[dice1_temp - 1], 200, 460 + bounce1, 96, 96);
-  image(dice_img[dice2_temp - 1], 300, 460 + bounce2, 96, 96);
+  image(dice_img[dice1_temp - 1], 200, 560 + bounce1, 96, 96);
+  image(dice_img[dice2_temp - 1], 300, 560 + bounce2, 96, 96);
 }
 
 // Dessine le panneau de logs
@@ -211,8 +210,9 @@ function drawLogs() {
   textSize(18);
   textAlign(LEFT);
   for (let i = 0; i < logs_lines; i++) {
-    text(logs[i], offset_logs_x + 10, (offset_logs_y + 140) - (i * 23));
+    text(logs[i], offset_logs_x + 10, (offset_logs_y + 135) - (i * 23));
   }
+  triangle(offset_logs_x - 10, (offset_logs_y + 125), offset_logs_x - 10, (offset_logs_y + 145), offset_logs_x + 5, (offset_logs_y + 135));
 }
 
 function draw_positionPlayer(i) {
@@ -225,13 +225,15 @@ function draw_positionPlayer(i) {
 }
 
 function drawEndScreen(p) {
-  image(confettis[0], 390, 40, 350, 350);
+  image(confettis, 390, 40, confettis.width*0.6, confettis.height*0.6);
+
   fill("#ffd7b3");
   rect(550, 300, 600, 100);
-  fill(player_color[p]);
-  textSize(64);
+
   textAlign(LEFT);
-  text(`J${p + 1} : VICTOIRE !`, 580, 370);
+  fill(player_color[p]);
+  textSize(56);
+  text(`Joueur ${p + 1} : VICTOIRE !`, 570, 355);
 }
 
 function switchPos(p1, p2) {
@@ -259,77 +261,146 @@ function calcPositions() {
 
 //=== BOUCLE PRINCIPALE ===
 function newRound(p) {
-  dice1 = int(random(1, 7));
-  dice2 = int(random(1, 7));
-  let total = dice1 + dice2;
-  let pos = player_position[p];
-  let log = `[J${p + 1}] Dés : ${dice1} + ${dice2} = ${total}`;
 
-  if (pos === 0) {
-    if (total === 9 && (dice1 === 6 || dice2 === 6)) pos = 26;
-    else if (total === 9 && (dice1 === 4 || dice2 === 4)) pos = 53;
-    else if (total === 6) pos = 12;
-    else pos += total;
-  } else {
-    pos += total;
-    if (pos % 9 === 0 && pos < 63) {
+  if (player_state[p] === 0) { // Si en état de jouer (pas puit, prison, hotel)
+    
+    // Lancer 2 dés
+    dice1 = int(random(1, 7));
+    dice2 = int(random(1, 7));
+    let total = dice1 + dice2;
+
+    startAnimation = millis();
+    rollDice = true;
+
+    let switch_possible = true;
+    let pos = player_position[p];
+    let log = `[JOUEUR ${p + 1}] Dés : ${dice1} + ${dice2} = ${total}`;
+    //let log_effect;
+  
+    if (pos === 0) { // Si pion sur case départ
+      if (total === 9 && (dice1 === 6 || dice2 === 6)) {
+        pos = 26;
+        log = log + ` || EFFET 6 + 3 -> 26`;
+        switch_possible = false;
+      }
+      else if (total === 9 && (dice1 === 4 || dice2 === 4)) {
+        pos = 53;
+        log = log + ` || EFFET 4 + 5 -> 53`;
+        switch_possible = false;
+      }
+      else if (total === 6) {
+        pos = 12;
+        log = log + ` || EFFET 6 -> 12`;
+        switch_possible = false;
+      }
+      // Effet PUIT
+      else if (total === 3) {
+        switch_possible = false;
+        pos = 3;
+        if (puit_rempli) {
+          addLogs(`Joueur ${p + 1} libère Joueur ${puit_player + 1} du PUITS`);
+          player_state[puit_player] = 0;
+          puit_rempli = false;
+        } else {
+          addLogs(`Joueur ${p + 1} tombe dans le PUITS`);
+          player_state[p] = 2;
+          puit_rempli = true;
+          puit_player = p;
+        }
+      } 
+      else {
+        pos += total; // Si aucune combinaison, avancer normalement
+      }
+    } 
+    else {
       pos += total;
-      addLogs(`OIE x2 ! Avance de nouveau`);
-    }
-    if (pos === 3) {
-      if (puit_rempli) {
-        addLogs(`J${p + 1} libère J${puit_player + 1} du PUITS`);
-        player_state[puit_player] = 0;
-        puit_rempli = false;
-      } else {
-        addLogs(`J${p + 1} tombe dans le PUITS`);
-        player_state[p] = 2;
-        puit_rempli = true;
-        puit_player = p;
+
+      // Effet OIE
+      if (pos % 9 === 0 && pos < 63 && pos > 0) {
+        pos += total;
+        addLogs(`OIE x2 ! Avance de nouveau`);
       }
-    } else if (pos === 19) {
-      player_state[p] = 1;
-      player_turns[p] = 2;
-      addLogs(`J${p + 1} prend des vacances à l'HOTEL`);
-    } else if (pos === 42) {
-      pos = 30;
-      addLogs(`J${p + 1} se perd dans le LABY`);
-    } else if (pos === 52) {
-      if (prison_remplie) {
-        addLogs(`J${p + 1} libère J${prison_player + 1}`);
-        player_state[prison_player] = 0;
-        prison_remplie = false;
-      } else {
-        player_state[p] = 3;
-        prison_remplie = true;
-        prison_player = p;
-        addLogs(`J${p + 1} en PRISON`);
+      // Effet HOTEL
+      else if (pos === 19) {
+        player_state[p] = 1;
+        player_turns[p] = 2;
+        addLogs(`Joueur ${p + 1} prend des vacances à l'HOTEL`);
+        switch_possible = false;
+      } 
+      // Effet LABYRINTHE
+      else if (pos === 42) {
+        pos = 30;
+        addLogs(`Joueur ${p + 1} se perd dans le LABY`);
+        switch_possible = false;
+      } 
+      // Effet PRISON
+      else if (pos === 52) {
+        switch_possible = false;
+        if (prison_remplie) {
+          addLogs(`Joueur ${p + 1} libère Joueur ${prison_player + 1}`);
+          player_state[prison_player] = 0;
+          prison_remplie = false;
+        } else {
+          player_state[p] = 3;
+          prison_remplie = true;
+          prison_player = p;
+          addLogs(`Joueur ${p + 1} en PRISON`);
+        }
+      } 
+      // Effet TDM
+      else if (pos === 58) {
+        pos = 0;
+        addLogs(`Joueur ${p + 1} rencontre la MORT 💀`);
+        switch_possible = false;
       }
-    } else if (pos === 58) {
-      pos = 0;
-      addLogs(`J${p + 1} rencontre la MORT 💀`);
+    }
+  
+    if (pos > 63) {
+      pos = 63 - (pos - 63);
+
+      if (pos === 58) {
+        pos = 0;
+        addLogs(`Joueur ${p + 1} rencontre la MORT 💀`);
+        switch_possible = false;
+      }
+    }
+
+
+    for (let i = 0; i < nb_joueurs; i++) {
+      if (i !== p && player_position[i] === pos && pos>0 && switch_possible) {
+        addLogs(`Switch Joueur ${p + 1} <-> Joueur ${i + 1}`);
+        switchPos(p, i);
+      }
+    }
+  
+    player_lastroll[p] = pos - player_position[p];
+    player_position[p] = pos;
+    positions_target[p] = positions[pos].copy();
+    addLogs(log);
+  
+    // Bloc VICTOIRE
+    if (pos === 63) {
+      addLogs(`🎉 Joueur ${p + 1} a gagné !`);
+      game_finished = true;
+      player_win = p;
+    }
+
+
+  }
+  // Autres ETATS (Hotel, Puit, Prison)
+  else if (player_state[p] === 1) { // Etat HOTEL
+    addLogs(`Joueur ${p + 1} à l'HOTEL, tours restants ${player_turns[p]}`);
+    player_turns[p]--;
+    if (player_turns[p] <= 0) {
+      player_state[p] = 0;
+      //addLogs(`Joueur ${p + 1} sort de l'HOTEL`);
     }
   }
-
-  if (pos > 63) pos = 63 - (pos - 63);
-  for (let i = 0; i < nb_joueurs; i++) {
-    if (i !== p && player_position[i] === pos) {
-      addLogs(`Switch J${p + 1} <-> J${i + 1}`);
-      switchPos(p, i);
-    }
+  else if (player_state[p] === 2) { // Etat PUIT
+    addLogs(`Joueur ${p + 1} prisonnier du puit`);
+  }
+  else if (player_state[p] === 3) { // Etat PRISON
+    addLogs(`Joueur ${p + 1} derrière les barreaux`);
   }
 
-  player_lastroll[p] = pos - player_position[p];
-  player_position[p] = pos;
-  positions_target[p] = positions[pos].copy();
-  addLogs(log);
-
-  if (pos === 63) {
-    addLogs(`🎉 J${p + 1} a gagné !`);
-    game_finished = true;
-    player_win = p;
-  }
-
-  startAnimation = millis();
-  rollDice = true;
 }
