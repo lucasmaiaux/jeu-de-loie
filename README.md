@@ -3,6 +3,8 @@
 🎲 Un projet de **jeu de l’oie** développé en **Processing (Java)**, puis converti en **p5.js** pour être exécutable directement dans un navigateur.  
 Ce projet a été réalisé dans le cadre de l'apprentissage des **algorithmes** et de la **programmation graphique**.
 
+🔗 [👉 Clique ici pour jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
+
 ---
 
 ## 🧠 Objectifs pédagogiques
@@ -31,6 +33,3 @@ Le jeu a été converti en **p5.js** (JavaScript) pour tourner dans un navigateu
 - `createCanvas()` pour l'affichage
 - `preload()` pour charger les assets
 - `draw()` pour la boucle principale
-
-🔗 [👉 Clique ici pour jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
-
