@@ -18,6 +18,7 @@ let dice1 = 1;
 let dice2 = 1;
 let offset_leftpanel_x = 80;
 let offset_leftpanel_y = 180;
+let last_player = 0;
 
 // Logs
 let offset_logs_x = 90;
@@ -55,6 +56,7 @@ let dice_img = [];
 let background_img;
 let pancarte, pancarte_left;
 let confettis;
+let button_rolldice, button_newturn;
 
 // === Chargement des images ===
 function preload() {
@@ -70,6 +72,8 @@ function preload() {
   pancarte = loadImage("data/pancarte_small.png");
   pancarte_left = loadImage("data/pancarte_left.png");
   confettis = loadImage("data/confettis_1.png");
+  button_rolldice = loadImage("data/rolldice_button.png");
+  button_newturn = loadImage("data/newturn_buttn.png");
 
   // Cases spéciales
   img_oie = loadImage("data/case_oie_txt.png");
@@ -128,6 +132,12 @@ function draw() {
     positions_current[i] = p5.Vector.lerp(positions_current[i], positions_target[i], 0.1);
     image(player_img[i], positions_current[i].x, positions_current[i].y-1);
   }
+
+  fill(player_color[last_player]);
+  triangle(
+    offset_leftpanel_x + 20, offset_leftpanel_y + 40 + (30*last_player), 
+    offset_leftpanel_x + 20, offset_leftpanel_y + 60 + (30*last_player), 
+    offset_leftpanel_x + 35, offset_leftpanel_y + 50 + (30*last_player));
 
   if (game_finished && frameCount % 60 > 20) drawEndScreen(player_win);
 
@@ -240,12 +250,18 @@ function drawLogs() {
 
 // Dessine le bouton de lancement de dés
 function drawButton() {
+
+  /*
   fill(255, 51, 0);
   rect(offset_leftpanel_x + 110, 90 + (nb_joueurs*30) + offset_leftpanel_y, 200, 50);
   fill(0);
   textSize(24);
   textAlign(CENTER, CENTER);
   text("Lancer dés", offset_leftpanel_x + 210, 115 + (nb_joueurs*30) + offset_leftpanel_y);
+  */
+
+  image(button_rolldice, offset_leftpanel_x + 110, offset_leftpanel_y + 90 + (nb_joueurs*30));
+  image(button_newturn, offset_leftpanel_x + 260, offset_leftpanel_y + 90 + (nb_joueurs*30));
 }
 
 function draw_positionPlayer(i) {
@@ -294,8 +310,8 @@ function calcPositions() {
 
 //=== BOUCLE PRINCIPALE ===
 function newRound(p) {
-
-  if (player_state[p] === 0) { // Si en état de jouer (pas puit, prison, hotel)
+  last_player = p;
+  if ((player_state[p] === 0) && (!game_finished)) { // Si en état de jouer (pas puit, prison, hotel)
     
     // Lancer 2 dés
     dice1 = int(random(1, 7));
