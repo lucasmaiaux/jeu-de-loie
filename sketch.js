@@ -19,6 +19,7 @@ let dice2 = 1;
 let offset_leftpanel_x = 80;
 let offset_leftpanel_y = 180;
 let last_player = 0;
+let next_player = 0;
 
 // Logs
 let offset_logs_x = 90;
@@ -73,7 +74,7 @@ function preload() {
   pancarte_left = loadImage("data/pancarte_left.png");
   confettis = loadImage("data/confettis_1.png");
   button_rolldice = loadImage("data/rolldice_button.png");
-  button_newturn = loadImage("data/newturn_buttn.png");
+  button_newturn = loadImage("data/newturn_button.png");
 
   // Cases spéciales
   img_oie = loadImage("data/case_oie_txt.png");
@@ -153,17 +154,23 @@ function keyPressed() {
 // === Contrôle souris ===
 function mousePressed() {
   if (!game_finished) {
-    let button_min_x = offset_leftpanel_x + 110
-    let button_max_x = button_min_x + 200;
+
+    let newturn_button_min_x = offset_leftpanel_x + 10
+    let newturn_button_max_x = newturn_button_min_x + 200;
+    let rolldice_button_min_x = offset_leftpanel_x + 210
+    let rolldice_button_max_x = rolldice_button_min_x + 200;
     let button_min_y = offset_leftpanel_y + 90 + (nb_joueurs*30)
     let button_max_y = button_min_y + 50;
   
-    if (mouseX > button_min_x && mouseX < button_max_x && mouseY > button_min_y && mouseY < button_max_y) {
+    if (mouseX > newturn_button_min_x && mouseX < newturn_button_max_x && mouseY > button_min_y && mouseY < button_max_y) {
       for (let i = 0; i < nb_joueurs; i++) {
         setTimeout(() => {
           newRound(i);
         }, i * 500); // 500ms
       }
+    }
+    else if (mouseX > rolldice_button_min_x && mouseX < rolldice_button_max_x && mouseY > button_min_y && mouseY < button_max_y) {
+      newRound(next_player);
     }
   }
 }
@@ -205,7 +212,7 @@ function drawLeftPanel() {
   fill(0);
   textSize(32);
   //textAlign(LEFT);
-  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 210, 175 + (nb_joueurs*30) + offset_leftpanel_y);
+  text(`Dés : ${dice1} + ${dice2} = ${dice1 + dice2}`, offset_leftpanel_x + 210, 215 + (nb_joueurs*30) + offset_leftpanel_y);
 }
 
 // Dessine l'animation des dés animés
@@ -228,8 +235,8 @@ function drawDices() {
       bounce2 = sin(millis() * 0.02 + PI / 2) * 15;
     }
   }
-  image(dice_img[dice1_temp - 1], 200, 560 + bounce1, 96, 96);
-  image(dice_img[dice2_temp - 1], 300, 560 + bounce2, 96, 96);
+  image(dice_img[dice1_temp - 1], 200, 600 + bounce1, 96, 96);
+  image(dice_img[dice2_temp - 1], 300, 600 + bounce2, 96, 96);
 }
 
 // Dessine le panneau de logs
@@ -251,17 +258,13 @@ function drawLogs() {
 // Dessine le bouton de lancement de dés
 function drawButton() {
 
-  /*
-  fill(255, 51, 0);
-  rect(offset_leftpanel_x + 110, 90 + (nb_joueurs*30) + offset_leftpanel_y, 200, 50);
-  fill(0);
-  textSize(24);
-  textAlign(CENTER, CENTER);
-  text("Lancer dés", offset_leftpanel_x + 210, 115 + (nb_joueurs*30) + offset_leftpanel_y);
-  */
+  image(button_newturn, offset_leftpanel_x + 10, offset_leftpanel_y + 70 + (nb_joueurs*30),button_newturn.width*0.8, button_newturn.height*0.8);
+  image(button_rolldice, offset_leftpanel_x + 210, offset_leftpanel_y + 75 + (nb_joueurs*30),button_rolldice.width*0.8, button_rolldice.height*0.8);
 
-  image(button_rolldice, offset_leftpanel_x + 110, offset_leftpanel_y + 90 + (nb_joueurs*30));
-  image(button_newturn, offset_leftpanel_x + 260, offset_leftpanel_y + 90 + (nb_joueurs*30));
+  fill(player_color[next_player]);
+  textSize(40);
+  text(`J${next_player+1}`, offset_leftpanel_x + 352, offset_leftpanel_y + 137 + (nb_joueurs*30));
+
 }
 
 function draw_positionPlayer(i) {
@@ -451,5 +454,6 @@ function newRound(p) {
   else if (player_state[p] === 3) { // Etat PRISON
     addLogs(`Joueur ${p + 1} derrière les barreaux`);
   }
+  next_player = (p + 1) % nb_joueurs;
 
 }
