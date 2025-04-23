@@ -3,9 +3,9 @@
 🎲 Un projet de **jeu de l’oie** développé en **Processing (Java)**, puis converti en **p5.js** pour être exécutable directement dans un navigateur.  
 Ce projet a été réalisé dans le cadre de l'apprentissage des **algorithmes** et du langage **Java**.
 
-🔗 [👉 Clique ici pour jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
+🔗 [👉 Jouer en ligne](https://lucasmaiaux.github.io/jeu-de-loie/)  
 
-Utiliser les chiffres du pavé numérique ou le bouton **Lancer dés** pour jouer.
+Utiliser les chiffres du pavé numérique ou les boutons **Nouveau tour**/**Lancer dés** pour jouer.
 
 ---
 
